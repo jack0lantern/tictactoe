@@ -8,12 +8,10 @@
 const int SIDE_LEN = BOARD_SIZE/2 + 1;
 
 void trim_newline(char *str){ //abdc\n\0 --> abdc\0\0
-    printf("asdf");
-    //printf("%s", *str);
-    //printf("%d", str);
-    //while((*str != '\n')|(*str != '\0'))
-//       str += 1;
-//    *str = '\0';
+//    printf("%s", str);
+    while((*str != '\n')&(*str != '\0'))
+       str += 1;
+    *str = '\0';
 }
 
 void getplayername(char *player, int pnum){
@@ -120,8 +118,8 @@ int make_move(char board[BOARD_SIZE][BOARD_SIZE + 1], int board_rec[SIDE_LEN][SI
 
 int main()
 {
-    char *player1[MAX_NAME_LEN];
-    char *player2[MAX_NAME_LEN];
+    char player1[MAX_NAME_LEN];// = "p1";
+    char player2[MAX_NAME_LEN];// = "p2";
     char board[BOARD_SIZE][BOARD_SIZE + 1];
     int board_record[SIDE_LEN][SIDE_LEN];
     char *move = malloc(sizeof(*move));
@@ -134,23 +132,23 @@ int main()
     printf("LET'S PLAY TIC TAC TOE Y'ALL\n");
     printf("Only the first character of whatever you enter will be read. e.g. 1234 is");
     printf(" interpreted as 1.\n\n");
-    *player1 = "p1";
-    //getplayername(player1, 1);
-    *player2 = "p2";
-    //getplayername(player2, 2);
+
+    getplayername(player1, 1);
+    getplayername(player2, 2);
+
     initialize_board(board);
     initialize_board_record(board_record);
 
-    while(!strcmp(*player1, *player2)){ // TODO have users reenter names
+    while(!strcmp(player1, player2)){ // TODO have users reenter names
         printf("Names must not match, ya ducks\n Player 2 pick a different name.\n");
         //getplayername(player2, 2);
-        trim_newline(*player1);
-        printf("%s", *player1);
+        trim_newline(player1);
+        printf("%s", player1);
     }
 
     do {
         do {
-            printf("Make your move, %s\n", *player1);
+            printf("Make your move, %s\n", player1);
             *move = fgetc(stdin);
             r = (*move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
             c = (*move - '1') % SIDE_LEN;
@@ -162,7 +160,7 @@ int main()
             break;
 
         do {
-            printf("Make your move, %s\n", *player2);
+            printf("Make your move, %s\n", player2);
             *move = fgetc(stdin);
             r = (*move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
             c = (*move - '1') % SIDE_LEN;
@@ -173,9 +171,9 @@ int main()
     } while(!(win = check_win(board_record)) && (movecount < SIDE_LEN*SIDE_LEN));
 
     if(win == 1)
-        printf("%s wins!!", *player1);
+        printf("%s wins!!", player1);
     else if(win == -1)
-        printf("%s wins!!", *player2);
+        printf("%s wins!!", player2);
     else
         printf("Ya drawed!!");
 
