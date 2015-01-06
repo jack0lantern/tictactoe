@@ -122,7 +122,7 @@ int main()
     char player2[MAX_NAME_LEN];// = "p2";
     char board[BOARD_SIZE][BOARD_SIZE + 1];
     int board_record[SIDE_LEN][SIDE_LEN];
-    char *move = malloc(sizeof(*move));
+    char move;
     int movecount = 0;
     int r;
     int c;
@@ -141,7 +141,7 @@ int main()
 
     while(!strcmp(player1, player2)){ // TODO have users reenter names
         printf("Names must not match, ya ducks\n Player 2 pick a different name.\n");
-        //getplayername(player2, 2);
+        getplayername(player2, 2);
         trim_newline(player1);
         printf("%s", player1);
     }
@@ -149,10 +149,11 @@ int main()
     do {
         do {
             printf("Make your move, %s\n", player1);
-            *move = fgetc(stdin);
-            r = (*move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
-            c = (*move - '1') % SIDE_LEN;
-            if(*move != '\n')
+            fgets(&move, 2, stdin);
+            printf("entered move: %d\n", move);
+            r = (move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
+            c = (move - '1') % SIDE_LEN;
+            if(move != '\n')
                 fgetc(stdin);   // The enter is considered a '\n' char in fgetc
         } while(make_move(board, board_record, r, c, 'X'));
         movecount++;
@@ -161,10 +162,11 @@ int main()
 
         do {
             printf("Make your move, %s\n", player2);
-            *move = fgetc(stdin);
-            r = (*move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
-            c = (*move - '1') % SIDE_LEN;
-            if(*move != '\n')
+            fgets(&move, 2, stdin);
+            printf("entered move: %d\n", move);
+            r = (move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
+            c = (move - '1') % SIDE_LEN;
+            if(move != '\n')
                 fgetc(stdin);   // The enter is considered a '\n' char in fgetc
         } while(make_move(board, board_record, r, c, 'O'));
         movecount++;
@@ -177,7 +179,5 @@ int main()
     else
         printf("Ya drawed!!");
 
-    free(move);
-    //free(board);
     return 0;
 }
