@@ -113,7 +113,10 @@ int check_win(int board_rec[SIDE_LEN][SIDE_LEN]) {
 }
 
 int make_move(char board[BOARD_SIZE][BOARD_SIZE + 1], int board_rec[SIDE_LEN][SIDE_LEN]
-              , int r, int c, char piece) {
+              , char move, char piece) {
+        int r = (move - '1') / SIDE_LEN;
+        int c = (move - '1') % SIDE_LEN;
+
         if(board_rec[r][c] || !((0 <= r) & (r <= (SIDE_LEN - 1)) & (0 <= c) & (c <= (SIDE_LEN - 1)))) {
             printf("Invalid move. \n");
             return 1;
@@ -129,6 +132,15 @@ int make_move(char board[BOARD_SIZE][BOARD_SIZE + 1], int board_rec[SIDE_LEN][SI
         return 0;
 }
 
+void clear_stream(char in) {
+    char target;
+    while(in != '\n' && (target = getchar()) != '\n' && target != EOF){}
+}
+
+void play_self(char board[BOARD_SIZE][BOARD_SIZE + 1], int board_rec[SIDE_LEN][SIDE_LEN]) {
+    printf("\n%s\n", *board);
+}
+
 int main()
 {
     char player1[MAX_NAME_LEN]; // = "p1";
@@ -136,61 +148,78 @@ int main()
     char board[BOARD_SIZE][BOARD_SIZE + 1];
     int board_record[SIDE_LEN][SIDE_LEN];
     char move;
-    char target;
-    int movecount = 0;
-    int r;
-    int c;
+    char y;
+    int num_players;
+    int movecount;
     int win;
 
     //collect names
     printf("LET'S PLAY TIC TAC TOE Y'ALL\n");
-    printf("Only the first character of whatever you enter will be read. e.g. 1234 is");
-    printf(" interpreted as 1.\n\n");
 
-    getplayername(player1, 1);
-    getplayername(player2, 2);
+    do{
+        do{
+            initialize_board(board);
+            initialize_board_record(board_record);
+            movecount = 0;
 
-    initialize_board(board);
-    initialize_board_record(board_record);
+            printf("How many players?\n");  // get number of players
+            num_players = getchar() - '0';
+            clear_stream(num_players);
+            if(num_players < 0 || num_players > 9)
+                printf("Invalid number of players.\n");
+        } while(num_players < 0 || num_players > 9);
+        if(!num_players)
+            goto end;
 
-    while(!strcmp(player1, player2)){ // TODO have users reenter names
-        printf("Names must not match, ya ducks\n Player 2 pick a different name.\n");
+        getplayername(player1, 1);
         getplayername(player2, 2);
-        trim_newline(player1);
-    }
 
-    do {
-        do {
-            printf("Make your move, %s\n", player1);
-            move = getchar();
-            while(move != '\n' && (target = getchar()) != '\n' && target != EOF){}
+        printf("\nOnly the first character of whatever you enter will be read. e.g. 1234 is");
+        printf(" interpreted as 1.\n\n");
 
-            r = (move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
-            c = (move - '1') % SIDE_LEN;
-
-        } while(make_move(board, board_record, r, c, 'X'));
-        movecount++;
-        if((win = check_win(board_record)) || movecount >= 9)
-            break;
+        while(!strcmp(player1, player2)){
+            printf("Names must not match, ya ducks\n Player 2 pick a different name.\n");
+            getplayername(player2, 2);
+            trim_newline(player2);
+        }
 
         do {
-            printf("Make your move, %s\n", player2);
-            move = getchar();
-            while(move != '\n' && (target = getchar()) != '\n' && target != EOF){}
+            do {
+                printf("Make your move, %s\n", player1);
 
-            r = (move - '1') / SIDE_LEN; // ASSUME move is a char 1-9
-            c = (move - '1') % SIDE_LEN;
+                move = getchar();
+                clear_stream(move);
 
-        } while(make_move(board, board_record, r, c, 'O'));
-        movecount++;
-    } while(!(win = check_win(board_record)) && (movecount < SIDE_LEN*SIDE_LEN));
+            } while(make_move(board, board_record, move, 'X'));
+            movecount++;
+            if((win = check_win(board_record)) || movecount >= 9)
+                break;
 
-    if(win == 1)
-        printf("%s wins!!", player1);
-    else if(win == -1)
-        printf("%s wins!!", player2);
-    else
-        printf("Ya drawed!!");
+            do {
+                printf("Make your move, %s\n", player2);
 
+                move = getchar();
+                clear_stream(move);
+
+            } while(make_move(board, board_record, move, 'O'));
+            movecount++;
+        } while(!(win = check_win(board_record)) && (movecount < SIDE_LEN*SIDE_LEN));
+
+        if(win == 1)
+            printf("%s wins!!", player1);
+        else if(win == -1)
+            printf("%s wins!!", player2);
+        else
+            printf("Ya drawed!!");
+
+        end:
+        if(!num_players) {
+            play_self(board, board_record);
+            printf("A strange game. The only way to win is to not play. ");
+        }
+        printf("\nPlay again? Enter y for yes, anything else for no.\n");
+        y = getchar();
+        clear_stream(y);
+    } while(y == 'y');
     return 0;
 }
